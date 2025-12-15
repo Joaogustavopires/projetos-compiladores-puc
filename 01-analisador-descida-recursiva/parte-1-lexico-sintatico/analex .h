@@ -1,25 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Definição dos tokens
+// DefiniÃ§Ã£o dos tokens
 #define NUM 256
 #define ID 257
 
-// Variáveis globais
+// VariÃ¡veis globais
 char c;                 // Armazena o caractere lido atualmente
 char lexema[30];        // Vetor para armazenar o texto do token (ex: "123" ou "a")
 
-// Função para reportar erro léxico e encerrar
+// FunÃ§Ã£o para reportar erro lÃ©xico e encerrar
 void erro_lexico() {
     printf("Erro lexico\n");
     exit(1);
 }
 
-// Analisador Léxico
+// Analisador LÃ©xico
 int analex() {
-    int i = 0; // Zera o índice do lexema para cada novo token
+    int i = 0; // Zera o Ã­ndice do lexema para cada novo token
 
-    // Pula espaços em branco, tabs e novas linhas
+    // Pula espaÃ§os em branco, tabs e novas linhas
     do {
         c = getchar();
     } while (c == ' ' || c == '\t' || c == '\n');
@@ -31,32 +31,32 @@ int analex() {
 
     // Reconhece operadores e delimitadores (tokens de um caractere)
     if (c == '+' || c == '-' || c == '*' || c == '/' || c == '(' || c == ')' || c == ';') {
-        return c; // Retorna o próprio caractere como seu token
+        return c; // Retorna o prÃ³prio caractere como seu token
     }
 
     //  Reconhece Constantes Inteiras [0-9]+
     if (c >= '0' && c <= '9') {
-        // Loop para ler todos os dígitos do número
+        // Loop para ler todos os dÃ­gitos do nÃºmero
         while (c >= '0' && c <= '9') {
-            lexema[i] = c; // Guarda o dígito no vetor
+            lexema[i] = c; // Guarda o dÃ­gito no vetor
             i++;
-            c = getchar(); // Lê o próximo caractere
+            c = getchar(); // LÃª o prÃ³ximo caractere
         }
 
         lexema[i] = '\0';   // Finaliza a string com o terminador nulo
-        ungetc(c, stdin);   // Devolve o último caractere lido (que não é um dígito)
+        ungetc(c, stdin);   // Devolve o Ãºltimo caractere lido (que nÃ£o Ã© um dÃ­gito)
         return NUM;
     }
 
     //  Reconhece Identificadores (um caractere)
     if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
-        lexema[0] = c;      // Guarda o único caractere no vetor
+        lexema[0] = c;      // Guarda o Ãºnico caractere no vetor
         lexema[1] = '\0';   // Finaliza a string
-        // Como o ID só tem 1 caractere, não precisamos ler o próximo nem usar ungetc
+        // Como o ID sÃ³ tem 1 caractere, nÃ£o precisamos ler o prÃ³ximo nem usar ungetc
         return ID;
     }
 
-    //  Se chegou até aqui, o caractere não foi reconhecido
+    //  Se chegou atÃ© aqui, o caractere nÃ£o foi reconhecido
     erro_lexico();
-    return -1; // Nunca será atingido, mas evita warnings do compilador
+    return -1; // Nunca serÃ¡ atingido, mas evita warnings do compilador
 }
