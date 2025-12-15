@@ -38,12 +38,5 @@ diff out1.txt saida1.txt
 
 Se o resultado for vazio, a saída é exatamente a esperada. Se a saída não for vazia, identifique o problema e ajuste.
 
-Em caso de dúvida, consultem os arquivos saidaX.txt para observarem o formato.
 
-entradas-e-saidas.zipDownload entradas-e-saidas.zip
 
-O envio deve ser feito em um .zip que deve conter os seguintes arquivos:
-
-sint.c -> analisador sintático com a função main;
-analex.h -> analisador léxico com variáveis globais utilizadas pelo sint.c (deve ser importado em sint.c)
-pilha.h -> arquivo com a pilha utilizada para resolver as expressões (pode utilizar o mesmo dado em sala, ou pilhas com alocação dinâmica)
