@@ -1,0 +1,29 @@
+f:
+	li $t0,10
+	move $v0,$t0
+	jr $ra
+
+main:
+	jal f
+	move $t1,$v0
+	sw $t1,24($sp)	# b
+	li $t2,33
+	lw $t3,24($sp)	# b
+	sub $t4,$t2,$t3
+	sw $t4,20($sp)	# a
+	lw $t5,20($sp)	# a
+	lw $t6,24($sp)	# b
+	li $t7,1
+	blt $t5,$t6,L1
+	li $t7,0
+L1:
+	beq $t7,0,L2
+	li $t8,5
+	sw $t8,28($sp)	# z
+	j L3
+L2:
+	li $t9,0
+	sw $t9,28($sp)	# z
+L3:
+	li $v0,10
+	syscall

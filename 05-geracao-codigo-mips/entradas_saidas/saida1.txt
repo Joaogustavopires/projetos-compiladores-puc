@@ -1,0 +1,9 @@
+main:
+	li $t0,10
+	sw $t0,0($sp)	# a
+	lw $t1,0($sp)	# a
+	li $t2,3
+	sub $t3,$t1,$t2
+	sw $t3,4($sp)	# b
+	li $v0,10
+	syscall

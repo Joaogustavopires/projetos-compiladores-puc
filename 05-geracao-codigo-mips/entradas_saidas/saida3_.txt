@@ -1,0 +1,32 @@
+soma:
+	lw $t0,0($sp)	# x
+	lw $t1,4($sp)	# y
+	add $t2,$t0,$t1
+	sw $t2,8($sp)	# z
+	lw $t3,8($sp)	# z
+	move $v0,$t3
+	jr $ra
+
+sub:
+	lw $t4,4($sp)	# x
+	lw $t5,8($sp)	# y
+	sub $t6,$t4,$t5
+	sw $t6,12($sp)	# z
+	lw $t7,12($sp)	# z
+	move $v0,$t7
+	jr $ra
+
+main:
+	li $t8,10
+	sw $t8,12($sp)	# b
+	li $t9,33
+	lw $t10,12($sp)	# b
+	sub $t11,$t9,$t10
+	sw $t11,8($sp)	# a
+	move $s1,$t13
+	move $s2,$t12
+	jal soma
+	move $t14,$v0
+	li $v0,10
+	syscall
+

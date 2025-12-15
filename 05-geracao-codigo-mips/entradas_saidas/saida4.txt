@@ -1,0 +1,60 @@
+main:
+	li $t0,60
+	sw $t0,8($sp)	# b
+	li $t1,0
+	sw $t1,4($sp)	# a
+L9:
+	lw $t2,8($sp)	# b
+	lw $t3,4($sp)	# a
+	li $t4,1
+	bgt $t2,$t3,L1
+	li $t4,0
+L1:
+	lw $t5,4($sp)	# a
+	li $t6,20
+	li $t7,1
+	blt $t5,$t6,L2
+	li $t7,0
+L2:
+	and $t8,$t4,$t7
+	beq $t8,0,L10
+	lw $t9,4($sp)	# a
+	li $t10,10
+	li $t11,1
+	blt $t9,$t10,L3
+	li $t11,0
+L3:
+	beq $t11,0,L7
+	lw $t12,4($sp)	# a
+	lw $t13,8($sp)	# b
+	li $t14,3
+	div $t15,$t13,$t14
+	add $t16,$t12,$t15
+	sw $t16,4($sp)	# a
+	j L8
+L7:
+	lw $t17,4($sp)	# a
+	li $t18,20
+	li $t19,1
+	blt $t17,$t18,L4
+	li $t19,0
+L4:
+	beq $t19,0,L5
+	lw $t20,4($sp)	# a
+	lw $t21,8($sp)	# b
+	li $t22,6
+	div $t23,$t21,$t22
+	add $t24,$t20,$t23
+	sw $t24,4($sp)	# a
+	j L6
+L5:
+	lw $t25,4($sp)	# a
+	li $t26,1
+	add $t27,$t25,$t26
+	sw $t27,4($sp)	# a
+L6:
+L8:
+	j L9
+L10:
+	li $v0,10
+	syscall
