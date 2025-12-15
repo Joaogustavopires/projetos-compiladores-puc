@@ -1,0 +1,49 @@
+Trabalho 1 - Final
+
+Implementar um Analisador de Expressões Aritméticas:
+
+Implementar um analisador léxico capaz de:
+Identificar todos os tokens necessários para reconhecer qualquer expressão aritmética que contenha: +, -, *, /, (, ), NUM;
+Ignorar espaços, tabulações e "pula linhas" como tokens;
+Identificar a linha de execução (de qual linha da entrada o analisador léxico está encontrando o token);
+Reportar erros léxicos.
+Implementar um analisador sintático capaz de:
+Derivar a gramática definida em aula usando o algoritmo de decida recursiva (também dado em aula);
+Identificar erros sintáticos;
+Resolver as equações de forma recursiva, fazendo uso de "pilha";
+Traduzir a equação infixa informada pelo usuário em sua forma pós-fixa. Note que para a versão pós-fixa, deve haver um espaço em branco entre cada token.
+pilha.hDownload pilha.h
+
+O código será corrigido inicialmente de forma automática. Para tanto, uma lista de entradas serão dadas para o programa, e as saídas serão comparadas à uma lista de saídas. As regras são:
+
+Se não houverem erros (sintáticos e léxicos),
+A primeira linha da saída deve ser: "EXPRESSAO CORRETA\n"
+A segunda linha da saída deve ser: "NOTACAO POSFIXA: <versao_posfixa>\n", onde <versao_posfixa> é um placeholder para a tradução encontrada;
+A terceira e última linha da saída deve ser: "RESULTADO DA EXPRESSAO: <valor_do_computo>\n", onde valor_do_computo é o resultado da operação que foi computado pelo programa.
+Se houverem erros léxicos a saída deverá ser uma única linha que diz: "\nERRO LEXICO NA LINHA <linha_de_erro>", onde <linha_de_erro> é o número da linha onde o erro foi encontrado na entrada, i.e., se o usuário digitou três vezes '\n', <linha_de_erro> = 4.
+Se houverem erros sintáticos, a saída deverá ser uma única linha que diz: "ERRO SINTATICO NA LINHA <linha_de_erro>", onde <linha_de_erro> segue a mesma definição de cima.
+Estou anexando o arquivo "entradas-e-saidas.zip" que contém arquivos "entradaX.txt" e "saidaX.txt", com X contido em {1,2,3,4,5}. No linux, você pode utilizar essas expressões como se fossem entradas do usuário usando o seguinte comando:
+
+sint < entrada1.txt
+
+O resultado esperado deve ser idêntico ao de saida1.txt.
+
+Para verificar por você mesmo, primeiro redirecione a saída utilizando:
+
+sint < entrada1.txt > out1.txt
+
+Depois, verifique inconsistências rodando:
+
+diff out1.txt saida1.txt
+
+Se o resultado for vazio, a saída é exatamente a esperada. Se a saída não for vazia, identifique o problema e ajuste.
+
+Em caso de dúvida, consultem os arquivos saidaX.txt para observarem o formato.
+
+entradas-e-saidas.zipDownload entradas-e-saidas.zip
+
+O envio deve ser feito em um .zip que deve conter os seguintes arquivos:
+
+sint.c -> analisador sintático com a função main;
+analex.h -> analisador léxico com variáveis globais utilizadas pelo sint.c (deve ser importado em sint.c)
+pilha.h -> arquivo com a pilha utilizada para resolver as expressões (pode utilizar o mesmo dado em sala, ou pilhas com alocação dinâmica)
