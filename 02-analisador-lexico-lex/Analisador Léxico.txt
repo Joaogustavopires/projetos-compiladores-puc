@@ -59,10 +59,3 @@ ATENÇÃO!!! Para executar o script, você deve estar na raíz do projeto (um "l
 
 O resultado deverá te informar quais arquivos resultaram idênticos e quais foram diferentes.
 
-O envio deve ser feito em um .zip que deve conter os seguintes arquivos:
-
-    analex.l -> arquivo do lex;
-
-    entradas_saidas/ -> a pasta com os arquivos de entrada semanticamente idênticos mas compátiveis com a sua linguagem;
-    tokens.h -> arquivo com os #defines de cada token
-    tabsimb.h -> arquivo que define a struct e as funções da tabela de símbolos
