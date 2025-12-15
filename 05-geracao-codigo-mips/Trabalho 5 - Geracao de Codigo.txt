@@ -1,0 +1,203 @@
+Trabalho 5
+Orientações para o Trabalho de Geração de Código
+
+1. Arquitetura do projeto
+analex.l define o analisador léxico e, a cada token reconhecido, preenche yylval com o valor semântico correto (tipo e place) antes de retornar o código do token.
+semantic.y contém a gramática em Yacc/Bison com ações semânticas e de geração de código. A seção %union descreve os campos disponíveis em yylval. As diretivas %token <campo> e %type <campo> conectam terminais e não terminais aos campos adequados.
+tabsimb.h implementa a tabela de símbolos. Ela registra cada identificador, seu tipo, tamanho, número de parâmetros, lista de argumentos e offset na pilha para variáveis locais.
+tipos.h concentra funções utilitárias para promoção de tipos, verificação de compatibilidade e cálculo de tamanhos.
+codigo.h contém as funções de geração de código MIPS que devem ser implementadas.
+listacodigo.h fornece funções auxiliares para manipulação de strings de código assembly (create_cod, insert_cod, print_cod).
+2. Estrutura de dados para geração de código
+2.1. O struct no (nó)
+Cada não terminal que produz código utiliza o campo node da união, que contém:
+
+struct no {
+    int place;      // Registrador temporário ou variável que armazena o valor
+    char *code;    // String contendo o código assembly gerado
+    int tipo;      // Tipo do valor (INT, FLOAT, CHAR)
+};
+place: Identifica onde o valor está armazenado. Se place >= 0, representa uma variável (registrador $s). Se place < 0, representa um temporário (registrador $t). Use getName(place, nome) para obter o nome do registrador. Nessa versão do projeto, só utilizamos os temporários.
+code: String contendo todas as instruções MIPS necessárias para calcular o valor.
+tipo: Tipo semântico do valor, usado para verificação de tipos.
+2.2. O struct ids (lista de identificadores)
+Usado para listas de parâmetros e argumentos:
+
+struct ids {
+    int ids[50];    // Array de places (posições na tabela ou temporários)
+    int tam;        // Número de elementos
+    char *code;     // Código assembly concatenado
+};
+2.3. Como os valores são propagados no Yacc/Bison
+Assinatura dos terminais: %token <node> NUM informa que todo token NUM usará o campo node da união. O léxico deve preencher yylval.node.tipo e yylval.node.place antes de retornar.
+Assinatura dos não terminais: %type <node> Exp declara que Exp utilizará o campo node da união. Dentro das regras, $$ representa o valor produzido pela cabeça, enquanto $1, $2, ... mapeiam os valores dos símbolos à direita.
+Uso em ações semânticas:
+$$.tipo = retorna_maior_tipo($1.tipo, $3.tipo); define o tipo resultante.
+$$.place = newTemp(); cria um novo registrador temporário.
+create_cod(&$$.code); insert_cod(&$$.code, $1.code); inicializa e concatena código.
+ExpAri("add", &$$, $1, $3); gera código para operação aritmética.
+3. Tabela de símbolos e gerenciamento de pilha
+3.1. Estrutura da tabela
+A tabela de símbolos (Tabela[MAX]) armazena:
+
+nome: Nome do identificador
+tipo: Tipo da variável/função
+tam: Tamanho em bytes
+num_param: Número de parâmetros (para funções) ou -1 (para variáveis)
+arg_list: Lista de posições dos parâmetros
+tam_arg_list: Tamanho da lista de argumentos
+offset: Deslocamento na pilha para variáveis locais
+3.2. Gerenciamento de offset
+A variável global offset acumula o espaço necessário para variáveis locais da função atual.
+Quando uma variável é declarada, set_type(pos, tipo) armazena o offset atual na variável e incrementa offset pelo tamanho do tipo.
+No início de cada função, offset deve ser resetado para 0 (novo escopo = nova pilha).
+Use get_var_offset(pos) para obter o offset de uma variável e gerar instruções lw/sw com $sp.
+3.3. Acesso a variáveis na pilha
+Variáveis locais são acessadas via $sp (stack pointer):
+
+Carregar: lw $t0, offset($sp) - carrega variável da pilha
+Armazenar: sw $t0, offset($sp) - armazena variável na pilha
+Use get_var_offset(pos) para obter o offset correto.
+4. Sistema de registradores
+4.1. Registradores temporários ($t)
+Gerados por newTemp(), que retorna valores negativos decrescentes (-1, -2, -3, ...).
+Convertidos para $t0, $t1, $t2, ... via getName(place, nome).
+Usados para armazenar resultados intermediários de expressões.
+Podem ser reutilizados após o uso (não precisam ser preservados entre chamadas).
+4.2. Registradores salvos ($s)
+Usados para variáveis (quando place >= 0).
+Na prática, variáveis locais são armazenadas na pilha e carregadas quando necessário.
+getName(place, nome) converte place >= 0 para $s0, $s1, etc., mas o código gerado usa lw/sw com $sp. Nessa versão do projeto, só utilizamos os temporários.
+4.3. Registradores especiais
+$v0: Valor de retorno de funções. Deve ser preenchido antes de jr $ra.
+$ra: Endereço de retorno. Preservado automaticamente por jal.
+$sp: Stack pointer. Usado para acessar variáveis locais.
+5. Funções de geração de código (codigo.h)
+Todas as funções em codigo.h devem ser implementadas. Cada função recebe um ponteiro para struct no onde o código será armazenado:
+
+5.1. Funções básicas
+Li(struct no *Exp, int valor): Gera código para carregar um literal (número ou caractere) em um temporário.
+Lw(struct no *Exp, int var_pos): Gera código para carregar uma variável da pilha (lw com $sp).
+Atrib(struct no *Atrib, int var_pos, struct no Exp): Gera código para atribuição (sw com $sp para variáveis locais).
+5.2. Expressões
+ExpAri(char *op, struct no *Exp, struct no Exp1, struct no Exp2): Gera código para operações aritméticas (add, sub, mul, div) e lógicas (and, or).
+ExpRel(char *op, struct no *Exp, struct no Exp1, struct no Exp2): Gera código para comparações relacionais (bgt, blt, bge, ble, beq, bne).
+5.3. Controle de fluxo
+If(struct no *If, struct no Exp, struct no Statement): Gera código para if sem else.
+IfElse(struct no *If, struct no Exp, struct no Statement1, struct no Statement2): Gera código para if-else.
+While(struct no *While, struct no Exp, struct no Statement): Gera código para while.
+DoWhile(struct no *DoWhile, struct no Exp, struct no Statement): Gera código para do-while.
+5.4. Funções
+Funct(struct no *Funct, int Id, struct no Comandos): Gera código para uma função completa (label, código dos comandos, jr $ra ou syscall).
+adiciona_argumentos(char **code, int id, struct ids Args): Gera código para passar argumentos (mover valores para registradores de parâmetros).
+Call(struct no *Call, int Id, struct ids Args): Gera código para chamada de função com argumentos (jal, captura de retorno em $v0).
+Call_blank(struct no *Call, int Id): Gera código para chamada de função sem argumentos.
+5.5. Funções auxiliares
+newTemp(): Retorna um novo número de temporário (negativo).
+newLabel(): Retorna um novo número de label para saltos.
+getName(int num, char *name): Converte place para nome de registrador ($t0, $s1, etc.).
+obtemNome(int pos): Obtém o nome (lexema) de um identificador da tabela de símbolos.
+6. Roteiro sugerido de implementação
+6.1. Fundamentos em codigo.h
+Implementar Li: Carregar literais em temporários.
+
+Criar código vazio.
+Criar novo temporário para Exp->place.
+Gerar li $tX, valor.
+Implementar Lw: Carregar variáveis da pilha.
+
+Criar código vazio.
+Criar novo temporário para Exp->place.
+Obter offset via get_var_offset(var_pos).
+Gerar lw $tX, offset($sp) com comentário do nome da variável.
+Implementar Atrib: Atribuir valores a variáveis.
+
+Inserir código da expressão (Exp.code).
+Se var_pos >= 0: gerar sw com offset da pilha.
+Se var_pos < 0: gerar move entre registradores.
+6.2. Expressões aritméticas e relacionais
+Implementar ExpAri: Operações aritméticas e lógicas.
+
+Inserir código de Exp1 e Exp2.
+Criar novo temporário para resultado.
+Gerar instrução MIPS correspondente (add, sub, mul, div, and, or).
+Atualizar Exp->place e Exp->code.
+Implementar ExpRel: Comparações relacionais.
+
+Inserir código de Exp1 e Exp2.
+Criar novo temporário e labels para saltos.
+Gerar comparação e branches (bgt, blt, etc.).
+Atribuir 0 ou 1 ao temporário baseado no resultado.
+6.3. Controle de fluxo
+Implementar If e IfElse: Estruturas condicionais.
+
+Inserir código da expressão condicional.
+Criar labels para else e fim.
+Gerar branch baseado no valor da expressão.
+Inserir código do statement e labels apropriados.
+Implementar While: Laço condicional.
+
+Criar labels para início e fim do laço.
+Inserir código da condição.
+Gerar branch para sair se condição falsa.
+Inserir código do statement e jump para início.
+Implementar DoWhile: Laço com teste no final.
+
+Criar labels para início e fim.
+Inserir código do statement.
+Inserir código da condição.
+Gerar branch para início se condição verdadeira.
+6.4. Funções
+Implementar adiciona_argumentos: Passagem de argumentos.
+
+Para cada argumento em Args, obter seu place.
+Obter o place do parâmetro correspondente da função.
+Gerar move do registrador do argumento para o do parâmetro.
+Implementar Call e Call_blank: Chamadas de função.
+
+Inserir código dos argumentos (via adiciona_argumentos).
+Gerar jal nome_funcao.
+Criar temporário e mover $v0 para ele (capturar retorno).
+Atualizar Call->place e Call->code.
+Implementar Funct: Definição de função.
+
+Criar código vazio.
+Adicionar label da função (obtemNome(Id) seguido de :).
+Inserir código dos comandos.
+Se função main: adicionar li $v0, 10 e syscall.
+Caso contrário: adicionar jr $ra.
+6.5. Integração no semantic.y
+Completar ações em semantic.y:
+Prog: Concatenar código de todas as funções.
+Function: Chamar Funct após ações semânticas.
+FunctionCall: Chamar Call ou Call_blank e atualizar $$.place.
+ArgList: Concatenar código e armazenar places.
+Statement_Seq: Concatenar código de todos os statements.
+RETURN: Carregar valor (se houver) e mover para $v0.
+Exp: Chamar ExpAri, ExpRel, Li, Lw conforme necessário.
+Atribuicao: Chamar Atrib após verificações semânticas.
+6.6. Testes
+Validar implementação:
+Executar ./verifica_inconsistencias.sh na raiz do projeto.
+Verificar se as saídas geradas correspondem aos arquivos saidaX_.txt.
+Testar com diferentes tipos de expressões, funções e estruturas de controle.
+7. Dicas importantes
+Sempre inicialize o código: Use create_cod(&$$.code) antes de concatenar.
+Preserve a ordem: O código deve ser gerado na ordem de execução (primeiro operandos, depois operação).
+Gerencie temporários: Crie novos temporários para resultados intermediários.
+Use labels únicos: newLabel() garante labels únicos para saltos.
+Comentários úteis: Adicione comentários nas instruções lw/sw com o nome da variável para facilitar depuração.
+Stack pointer: Lembre-se que variáveis locais estão na pilha, não em registradores $s.
+Valor de retorno: Sempre mova o valor de retorno para $v0 antes de jr $ra.
+Argumentos: Passe argumentos movendo valores para os registradores dos parâmetros antes de jal.
+8. Exemplo de fluxo
+Para a expressão a + b:
+
+Exp: ID (a) → chama Lw(&$$, $1) → gera lw $t0, offset_a($sp), $$.place = -1
+Exp: ID (b) → chama Lw(&$$, $1) → gera lw $t1, offset_b($sp), $$.place = -2
+Exp: Exp '+' Exp → chama ExpAri("add", &$$, $1, $3) → gera:
+lw $t0, offset_a($sp)  # código de $1
+lw $t1, offset_b($sp)  # código de $3
+add $t2, $t0, $t1      # nova instrução
+$$.place = -3 (novo temporário)
+Cada função de geração de código deve seguir esse padrão: inserir código dos operandos, criar temporário para resultado, gerar instrução MIPS.
