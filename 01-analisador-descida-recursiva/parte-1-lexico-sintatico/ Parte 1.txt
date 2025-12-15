@@ -1,4 +1,4 @@
- Parte 1
+Trabalho 1 - Parte 1
 
 Passo 1 - Implementar o analisador léxico
 
@@ -8,3 +8,4 @@ Passo 2 - implementar o analisador sintático utilizando o método de descida re
 
 
 O analisador deverá reportar erros sintáticos ou reportar que não há erros sintáticos.
+
