@@ -1,0 +1,47 @@
+Este trabalho continua a implementação do compilador pessoal de cada um. As instruções do trabalho passado quanto à compiladores diferentes do Like-C ainda são as mesmas. Torço para que mais alunos implementem suas próprias linguagens!
+
+ 
+
+O trabalho consiste na implementação de um Analisador Sintático usando YACC que seja capaz de identificar um programa na sua linguagem de programação, contendo:
+
+Definições e chamadas de funções;
+Expressões aritiméticas, lógicas e relacionais;
+Declaração e uso variáveis (incluindo vetores);
+Atribuição de valores em variáveis;
+Estruturas de repetição e condição (for, while, do while, if, else);
+Note que o analisador deve ser capaz de verificar códigos completos, contendo múltiplas funções e comandos.
+
+
+O código será corrigido inicialmente de forma automática. Para tanto, uma lista de entradas serão dadas para o programa, e as saídas serão comparadas à uma lista de saídas.
+
+ 
+
+Dentro do zip, a pasta por nome "entradas-e-saidas" contém arquivos "entradaX.c" e "saidaX_.txt", com X contido em [1,12]. Dessa vez, o diff é suficiente para avaliarmos as saídas. Ainda assim, deixei o script automático para facilitar para vocês. Na raíz do projeto, use o comando abaixo para executá-lo:
+
+./verifica_inconsistencias.sh entradas_saidas/
+
+ATENÇÃO!!! Para executar o script, você deve estar na raíz do projeto (um "ls" no terminal deve te mostrar os arquivos .l e os .h). Se o script não rodar, execute chmod 777 verifica_inconsistencias.sh e depois tente novamente.
+
+ 
+
+Se quiserem fazer testes individuais e manuais, compile da seguinte forma:
+
+lex -o analex.c analex.l
+
+yacc -o sint.c sint.y -d
+
+gcc -o sint sint.c -lfl
+
+./sint entrada1.c > saida1.txt
+
+ 
+
+O resultado deverá te informar quais arquivos resultaram idênticos e quais foram diferentes.
+
+O envio deve ser feito em um .zip que deve conter os seguintes arquivos:
+
+    analex.l -> arquivo do lex;
+
+    sint.y -> arquivo do yacc;
+
+    entradas_saidas/ -> a pasta com os arquivos de entrada semanticamente idênticos mas compátiveis com a sua linguagem;
