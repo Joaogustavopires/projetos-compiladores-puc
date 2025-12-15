@@ -1,7 +1,3 @@
-Este trabalho continua a implementação do compilador pessoal de cada um. As instruções do trabalho passado quanto à compiladores diferentes do Like-C ainda são as mesmas. Torço para que mais alunos implementem suas próprias linguagens!
-
- 
-
 O trabalho consiste na implementação de um Analisador Sintático usando YACC que seja capaz de identificar um programa na sua linguagem de programação, contendo:
 
 Definições e chamadas de funções;
@@ -37,11 +33,3 @@ gcc -o sint sint.c -lfl
  
 
 O resultado deverá te informar quais arquivos resultaram idênticos e quais foram diferentes.
-
-O envio deve ser feito em um .zip que deve conter os seguintes arquivos:
-
-    analex.l -> arquivo do lex;
-
-    sint.y -> arquivo do yacc;
-
-    entradas_saidas/ -> a pasta com os arquivos de entrada semanticamente idênticos mas compátiveis com a sua linguagem;
