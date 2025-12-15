@@ -6,18 +6,22 @@ analex.l define o analisador léxico e, a cada token reconhecido, preenche yylva
 sint.y contém a gramática em Yacc/Bison. A seção %union descreve os campos disponíveis em yylval. As diretivas %token <campo> e %type <campo> conectam terminais e não terminais aos campos adequados.
 tabsimb.h implementa a tabela de símbolos. Ela registra cada identificador, seu tipo, tamanho e metadados como número de parâmetros de funções.
 tipos.h concentra funções utilitárias para promoção de tipos, verificação de compatibilidade e cálculo de tamanhos.
+
 2. Como os tipos são associados no Yacc/Bison
 Assinatura dos terminais: ao declarar %token <simbolo> ID, informamos que todo token ID usará o campo simbolo da união. O léxico deve preencher yylval.simbolo com posicao, lexema e demais dados antes de retornar.
 Assinatura dos não terminais: com %type <val> Exp, declaramos que Exp utilizará o campo val da união. Dentro das regras, $$ representa o valor produzido pela cabeça, enquanto $1, $2, ... mapeiam os valores dos símbolos à direita.
 Uso em ações semânticas: expressões como $$ = retorna_maior_tipo($1, $3); propõem tipos resultantes, e chamadas a set_type($2.posicao, $1); salvam o tipo na tabela de símbolos. Cada TODO presente hoje em sint.y indica onde essas ações devem ser reincorporadas.
+
 3. yylval, yytext e sua interação
 yytext é fornecido pelo Flex e guarda o lexema textual do token mais recente. É útil para inserir identificadores na tabela (insere(yytext)), montar mensagens de erro e depurar.
 yylval é a variável global compartilhada entre o léxico e o sintático. Cada regra do léxico deve preencher o campo apropriado de yylval antes de retornar o token. No parser, o valor atual de yylval aparece como $n (dependendo da posição do token na produção).
+
 4. Tabela de símbolos neste trabalho
 Estrutura: Tabela[MAX] armazena cada símbolo com nome, tipo (tipo), tamanho (tam), número de parâmetros (num_param) e outros metadados.
 Inserção: ocorre normalmente no léxico, chamando insere ao reconhecer um ID. Quando um identificador aparece novamente, insere retorna a posição existente.
 Atribuição de tipo: set_type(pos, tipo) grava o tipo definitivo, calcula o tamanho via get_tam_tipo e atualiza o deslocamento.
 Funções auxiliares: set_num_param, param_args_diferentes e retorna_maior_tipo sustentam as checagens realizadas nas ações semânticas do parser.
+
 5. Roteiro sugerido de implementação
 Fundamentos em tipos.h
 Codificar retorna_maior_tipo, get_tam_tipo e tipos_inconsistentes_atrib.
@@ -33,4 +37,5 @@ Preencher ações de Function e FunctionCall para registrar tipo de retorno, nú
 Atribuições
 Implementar Atribuicao e AtribuicaoD, verificando existência do identificador e compatibilidade de tipos usando tipos_inconsistentes_atrib.
 Testes automatizados
+
 Executar ./verifica_inconsistencias.sh na raiz do projeto e verificar as entradas em entradas_saidas.
