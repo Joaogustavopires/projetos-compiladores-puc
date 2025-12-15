@@ -1,0 +1,9 @@
+Trabalho 1 - Parte 1
+
+Passo 1 - Implementar o analisador léxico
+
+Lista de Tokens: Identificadores (um caractere), Constantes Inteiras [0-9]+, Operadores ("+", "-", "*" e "/"), "(", ")", ";".
+O analisador deverá ignorar os espaços em branco, tabs, e pula linhas.
+Passo 2 - implementar o analisador sintático utilizando o método de descida recursiva.
+
+O analisador deverá reportar erros sintáticos ou reportar que não há erros sintáticos.
