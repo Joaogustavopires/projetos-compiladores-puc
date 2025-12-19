@@ -78,7 +78,8 @@ Essa abordagem evidencia a separação de responsabilidades e a evolução incre
 
 ## 🧑‍💻 Autor
 
-**João Gustavo Pires da Costa**
+**João Gustavo Pires da Costa**  
+
 Estudante de Ciência da Computação – PUC Minas
 
 ---
